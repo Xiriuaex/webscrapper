@@ -3,26 +3,25 @@
 import { scrapeAndStoreProduct } from "@/lib/actions";
 import { FormEvent, useState } from "react"
 
-const SearchBar = () => {
-  
+const isValidAmazonProductURL = (url: string) => {
+  try {
+    const parsedURL = new URL(url);
+    const hostname = parsedURL.hostname;
 
-  const isValidAmazonProductURL = (url: string) => {
-    try {
-      const parsedURL = new URL(url);
-      const hostname = parsedURL.hostname;
+    if(
+      hostname.includes('amazon.com')||
+      hostname.includes('amazon.in')||
+      hostname.includes('amazon.')
+    ) {
 
-      if(
-        hostname.includes('amazon.com')||
-        hostname.includes('amazon.in')||
-        hostname.includes('amazon.')
-      ) {
-
-        return true;
-      }
-    } catch (error) {
-      return false;
+      return true;
     }
+  } catch (error) {
+    return false;
   }
+}
+
+const SearchBar = () => {
 
   const [searchPrompt, setSearchPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -36,13 +35,13 @@ const SearchBar = () => {
 
     try {
       setIsLoading(true);
-
-      const product = await scrapeAndStoreProduct(searchPrompt);
       //HERE SCRAP THE PRODUCT...
+      const product = await scrapeAndStoreProduct(searchPrompt); 
+
     } catch (error) {
       console.log(error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); 
     }
   }
 
