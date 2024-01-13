@@ -18,8 +18,7 @@ export type PriceHistoryItem = {
     highestPrice: number;
     lowestPrice: number;
     averagePrice: number;
-    discountRate: number;
-    description: string;
+    discountRate: number; 
     category: string;
     reviewsCount: number;
     stars: number;

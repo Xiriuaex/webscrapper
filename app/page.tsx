@@ -8,25 +8,26 @@ const Home = async () => {
   const allProducts = await getAllProducts();
   return (
   <>
-    <section className='px-6 md:px-20 py-24'>
-      <div className='flex max-xl:flex-col gap-16'>
-          <div className='flex flex-col justify-center'>
+    <section className='px-6 md:px-20 pt-16 pb-20'>
+      <div className='flex flex-col'>
+          <HeroCarousel />
+          
+          <div className='flex flex-col pt-[3rem]'>
             <p className='small-text'>
               Smart Shopping Starts Here →
             </p>
 
             <h1 className='head-text'>
-              Unlease the Power of 
+              Track the Prices with
               <span className='text-primary'> TrackerDo</span>
             </h1>
 
-            <p className='mt-6'>
-            Powerful, self-serve product and growth analytics to help you convert, engage, and retain more.
+            <p className='mt-6 ml-2'>
+              Track any product price and buy at its best worth. No more manually checking the prices now.
             </p>
 
             <SearchBar />
           </div>
-          <HeroCarousel />
 
       </div>
       
@@ -35,7 +36,7 @@ const Home = async () => {
     <section className='trending-section'>
       <h2 className='section-text'>Trending</h2>
 
-      <div className='flex flex-wrap gap-x-8 gap-y-16'>
+      <div className='flex flex-wrap justify-center gap-x-8 gap-y-16'>
         {allProducts?.map((product) => (
           <ProductCard key={product._id} product= {product}/>
         ))
