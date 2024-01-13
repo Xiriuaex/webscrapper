@@ -24,42 +24,39 @@ export async function GET() {
                 if(!scrapedProduct)
                     throw new Error("No product found");
 
-                    const updatedPriceHistory = [
-                        ...currentProduct.priceHistory,
-                        {price: scrapedProduct.currentPrice}
-                    ]
+                const updatedPriceHistory = [
+                    ...currentProduct.priceHistory,
+                    {price: scrapedProduct.currentPrice}
+                ]
         
-                    const product = {
-                        ...scrapedProduct,
-                        priceHistory: updatedPriceHistory,
-                        lowestPrice: getLowestPrice(updatedPriceHistory),
-                        highestPrice: getHighestPrice(updatedPriceHistory),
-                        averagePrice: getAveragePrice(updatedPriceHistory),
+                const product = {
+                    ...scrapedProduct,
+                    priceHistory: updatedPriceHistory,
+                    lowestPrice: getLowestPrice(updatedPriceHistory),
+                    highestPrice: getHighestPrice(updatedPriceHistory),
+                    averagePrice: getAveragePrice(updatedPriceHistory),
+                }
+
+                const updatedProduct = await Product.findOneAndUpdate(
+                    {url: scrapedProduct.url},
+                    product,
+                );
+
+                //2. Check each product's status & send email accordingly:
+                const emailNotificationType = getEmailNotifType(scrapedProduct, currentProduct);
+
+                if(emailNotificationType && updatedProduct.users.length > 0 ) {
+                    const productInfo = {
+                        title: updatedProduct.title,
+                        url: updatedProduct.url,
                     }
 
-                    const updatedProduct = await Product.findOneAndUpdate(
-                        {url: scrapedProduct.url},
-                        product,
-                    );
+                    const EmailContent = await generateEmailBody(productInfo, emailNotificationType);
+                    const userEmails = updatedProduct.users.map((user: any) => user.email);
+                    await sendEmail(EmailContent, userEmails);
+                }
 
-                    //2. Check each product's status & send email accordingly:
-                    const emailNotificationType = getEmailNotifType(scrapedProduct, currentProduct);
-
-                    if(emailNotificationType && updatedProduct.users.length > 0 ) {
-                        const productInfo = {
-                            title: updatedProduct.title,
-                            url: updatedProduct.url,
-                        }
-
-                        const EmailContent = await generateEmailBody(productInfo, emailNotificationType);
-
-
-                        const userEmails = updatedProduct.users.map((user: any) => user.email);
-
-                        await sendEmail(EmailContent, userEmails);
-                    }
-
-                    return updatedProduct;
+                return updatedProduct;
             })
         )
 
