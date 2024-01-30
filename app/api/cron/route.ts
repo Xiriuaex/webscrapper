@@ -5,7 +5,7 @@ import { scrapeAmazonProduct } from "@/lib/scrapper/index";
 import { getAveragePrice, getEmailNotifType, getHighestPrice, getLowestPrice } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
-export const maxDuration = 9
+export const maxDuration = 30
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
@@ -24,14 +24,13 @@ export async function GET() {
             product.map(async (currentProduct) => {
                 const scrapedProduct = await scrapeAmazonProduct(currentProduct.url);
 
-                if(!scrapedProduct)
-                    throw new Error("No product found!");
+                if (!scrapedProduct) return;
 
                 const updatedPriceHistory = [
-                    ...currentProduct.priceHistory,
-                    {
-                        price: scrapedProduct.currentPrice,
-                    },
+                ...currentProduct.priceHistory,
+                {
+                    price: scrapedProduct.currentPrice,
+                },
                 ];
 
                 const product = {
