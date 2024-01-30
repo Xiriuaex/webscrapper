@@ -1,7 +1,7 @@
 import Product from "@/lib/models/product.model";
 import { connectToDB } from "@/lib/mongoose";
 import { generateEmailBody, sendEmail } from "@/lib/nodemailer";
-import { scrapeAmazonProduct } from "@/lib/scrapper";
+import { scrapeAmazonProduct } from "@/lib/scrapper/index";
 import { getAveragePrice, getEmailNotifType, getHighestPrice, getLowestPrice } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
