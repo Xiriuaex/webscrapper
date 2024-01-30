@@ -84,18 +84,15 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) => {
 
-  try {
-    const { data, error } = await resend.emails.send({
+  try { 
+  
+    await resend.emails.send({
       from: 'onboarding@resend.dev',
       to: sendTo,
       subject: emailContent.subject,
       html: emailContent.body,
-    });
+    }); 
 
-    if (error) {
-      throw new Error("Error sending mail!");
-    }
-    
   }catch (error) {
     throw new Error("Error sending mail!")
   }
