@@ -81,13 +81,13 @@ const transporter = nodemailer.createTransport({
 
 export const sendEmail = async (emailContent: EmailContent, sendTo: string[]) => {
     const mailOptions = {
-        from: "prgnc24.primary@outlook.com",
+        from: process.env.EMAIL_ID,
         to: sendTo,
         subject: emailContent.subject,
         html: emailContent.body,
     } 
 
-    transporter.sendMail(mailOptions, (error: any, info: any) => {
+    await transporter.sendMail(mailOptions, (error: any, info: any) => {
         if(error) return console.log("this is not good",error);
 
         console.log('Email sent: ', info);

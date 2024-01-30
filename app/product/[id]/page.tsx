@@ -89,15 +89,6 @@ const ProductDetails = async ({ params: {id} }: Props) => {
 
       <Modal productId={id} />
 
-      <div className="flex flex-col gap-16">
-        <div className="flex flex-col gap-5">
-          <h3 className="text-2xl text-secondary font-semibold">
-            Product Description
-          </h3>
- 
-        </div>
-      </div>
-
       <button className="btn w-fit mx-auto flex items-center justify-center gap-3 min-w-[200px]">
         <Image
           src={"/assets/icons/buyCart.svg"}
