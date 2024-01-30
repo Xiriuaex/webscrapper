@@ -13,15 +13,15 @@ export async function GET() {
     try {
         connectToDB();
 
-        const products = await Product.find({});
+        const product = await Product.find({});
 
-        if(!products) 
+        if(!product) 
             throw new Error("No Product Found!");
 
         //CRON jobs:
         //Scrape product's latest details and update DB:
         const updatedProducts = await Promise.all(
-            products.map(async (currentProduct) => {
+            product.map(async (currentProduct) => {
                 const scrapedProduct = await scrapeAmazonProduct(currentProduct.url);
 
                 if(!scrapedProduct)
