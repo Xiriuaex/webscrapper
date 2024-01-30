@@ -61,6 +61,7 @@ export async function scrapeAmazonProduct(url: string) {
         const data = {
             url,
             currency: currency || '$',
+            addedAt: new Date(),
             image: imageUrls[0],
             title,
             currentPrice: Number(currentPrice) || Number(originalPrice),
@@ -74,6 +75,7 @@ export async function scrapeAmazonProduct(url: string) {
             reviewsCount:100,
             stars: 4.5,
             isOutOfStock: outOfStock,
+            
         }
        
         return data;

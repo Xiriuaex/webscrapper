@@ -8,8 +8,10 @@ import { revalidatePath } from "next/cache";
 import { User } from "@/types";
 import { generateEmailBody, sendEmail } from "../nodemailer"; 
 
+
 export async function scrapeAndStoreProduct(productURL: string) {
-    if(!productURL) return;
+    if(!productURL)
+        throw new Error("No URL found on the backend!");
  
     try {
         connectToDB();
@@ -34,14 +36,14 @@ export async function scrapeAndStoreProduct(productURL: string) {
                 averagePrice: getAveragePrice(updatedPriceHistory),
             }
         }
-
+ 
         const newProduct = await Product.findOneAndUpdate(
             {url: scrapedProduct.url},
             product,
             {upsert: true, new: true},
         );
 
-        revalidatePath(`/product/${newProduct._id}`); 
+        revalidatePath(`/product/${newProduct._id}`);
         
     } catch (error: any) {
         throw new Error(`Failed to create/update product: ${error.message}`);

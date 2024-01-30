@@ -10,6 +10,7 @@ export type PriceHistoryItem = {
     _id?: string;
     url: string;
     currency: string;
+    addedAt: Date;
     image: string;
     title: string;
     currentPrice: number;
