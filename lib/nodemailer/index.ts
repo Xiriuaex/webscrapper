@@ -71,7 +71,7 @@ export const generateEmailBody = async (product: EmailProductInfo, type: Notific
 const transporter = nodemailer.createTransport({
     pool: true,
     service: 'hotmail',
-    port: 2525,
+    port: 465,
     auth: {
         user: process.env.EMAIL_ID,
         pass: process.env.EMAIL_PASSWORD,
