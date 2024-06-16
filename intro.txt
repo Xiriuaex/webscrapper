@@ -1,0 +1,25 @@
+Both are used to extract info.
+
+webscrapper: 
+    extracts specific data from web pages
+    targets individual pages for data extraction
+    any piece of data 
+    mainly used for dataset generation for machine learning training 
+
+web crawler:
+    navigates the web, indices content
+    fllows linkes to discover new pages
+    SEO analysifa-spin
+
+
+how web scrapping works:
+
+    first we send a http request which is automatically sent.
+    Then we get the data from the site like html, css and js.
+    We then parse the data and select what matters to us.
+
+    How do we parse:
+        we target the html element of the data that it is in.
+        store data into database after extracting the needed data.
+
+
