@@ -6,25 +6,22 @@ export type PriceHistoryItem = {
     email: string;
   };
   
+  
   export type Product = {
-    _id?: string;
-    url: string;
-    currency: string;
-    addedAt: Date;
-    image: string;
-    title: string;
-    currentPrice: number;
-    originalPrice: number;
-    priceHistory: PriceHistoryItem[] | [];
-    highestPrice: number;
-    lowestPrice: number;
-    averagePrice: number;
-    discountRate: number; 
-    category: string;
-    reviewsCount: number;
-    stars: number;
-    isOutOfStock: Boolean;
-    users?: User[];
+    productId?: string;
+    productUrl?: string;
+    currency?: string;
+    image?: string;
+    title?: string;
+    currentPrice?: number;
+    originalPrice?: number;
+    lowestPrice?: number;
+    highestPrice?: number;
+    averagePrice?: number;
+    discountRate?: number;
+    isOutOfStock?: boolean; 
+    priceHistory?: PriceHistoryItem[] | []
+    createdAt?: Date; 
   };
   
   export type NotificationType =

@@ -58,24 +58,20 @@ export async function scrapeAmazonProduct(url: string) {
         const discountRate = $('.savingsPercentage').text().replace(/[-%]/g, '');
 
         //Construct data object with scraped information:
-        const data = {
-            url,
+        const data = { 
+            productUrl: url,
             currency: currency || '$',
-            addedAt: new Date(),
             image: imageUrls[0],
             title,
             currentPrice: Number(currentPrice) || Number(originalPrice),
-            originalPrice: Number(originalPrice) || Number(currentPrice),
-            priceHistory:[],
-            discountRate: Number(discountRate),
-            category: "category",
+            originalPrice: Number(originalPrice) || Number(currentPrice), 
             lowestPrice: Number(currentPrice) || Number(originalPrice),
             highestPrice: Number(originalPrice) || Number(currentPrice),
+            discountRate: Number(discountRate),
             averagePrice: Number(currentPrice) || Number(originalPrice),
-            reviewsCount:100,
-            stars: 4.5,
             isOutOfStock: outOfStock,
-            
+            createdAt: new Date(),
+            priceHistory: []
         }
        
         return data;
@@ -85,3 +81,4 @@ export async function scrapeAmazonProduct(url: string) {
     }
 
 }
+

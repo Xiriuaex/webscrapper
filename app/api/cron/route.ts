@@ -37,14 +37,14 @@ export async function GET(request: Request) {
           ...scrapedProduct,
           priceHistory: updatedPriceHistory,
           lowestPrice: getLowestPrice(updatedPriceHistory),
-          highestPrice: getHighestPrice(updatedPriceHistory),
+          highestPrice: getHighestPrice(updatedPriceHistory, scrapedProduct.highestPrice),
           averagePrice: getAveragePrice(updatedPriceHistory),
         };
 
         // Update Products in DB
         const updatedProduct = await Product.findOneAndUpdate(
           {
-            url: product.url,
+            url: product.productUrl,
           },
           product
         );

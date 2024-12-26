@@ -37,16 +37,17 @@ export function extractCurrency(element: any) {
     return currencyText ? currencyText : "";
 }
 
-export function getHighestPrice(priceList: PriceHistoryItem[]) {
-    let highestPrice = priceList[0];
+export function getHighestPrice(priceList: PriceHistoryItem[], highestCrossed: number) {
+    let highestPrice = highestCrossed;
+
   
     for (let i = 0; i < priceList.length; i++) {
-      if (priceList[i].price > highestPrice.price) {
-        highestPrice = priceList[i];
+      if (priceList[i].price > highestPrice) {
+        highestPrice = priceList[i].price;
       }
     }
   
-    return highestPrice.price;
+    return highestPrice;
 }
   
 export function getLowestPrice(priceList: PriceHistoryItem[]) {
@@ -72,15 +73,15 @@ export const getEmailNotifType = (
   scrapedProduct: Product,
   currentProduct: Product
 ) => {
-  const lowestPrice = getLowestPrice(currentProduct.priceHistory);
+  const lowestPrice = getLowestPrice(currentProduct.priceHistory as PriceHistoryItem[]);
 
-  if (scrapedProduct.currentPrice < lowestPrice) {
+  if ((scrapedProduct.currentPrice as number) < lowestPrice) {
     return Notification.LOWEST_PRICE as keyof typeof Notification;
   }
   if (!scrapedProduct.isOutOfStock && currentProduct.isOutOfStock) {
     return Notification.CHANGE_OF_STOCK as keyof typeof Notification;
   }
-  if (scrapedProduct.discountRate >= THRESHOLD_PERCENTAGE) {
+  if ((scrapedProduct.discountRate as number) >= THRESHOLD_PERCENTAGE) {
     return Notification.THRESHOLD_MET as keyof typeof Notification;
   }
 

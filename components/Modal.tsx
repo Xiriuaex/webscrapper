@@ -9,7 +9,7 @@ interface Props {
     productId: string,
 }
 const Modal = ({productId}: Props ) => {
-    let [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [email, setEmail] = useState('');
 
@@ -17,23 +17,23 @@ const Modal = ({productId}: Props ) => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        await addUserEmailToProduct(productId, email);
-        
-        setIsSubmitting(false);
-        setEmail("");
-        closeModal();
+        try {
+            await addUserEmailToProduct(productId, email);
+            setEmail('');
+            closeModal();
+        } catch (error) {
+            console.error("Error submitting form:", error);
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
-    const openModal = () => {
-        setIsOpen(true);
-    };
-    const closeModal = () => {
-        setIsOpen(false);
-    };
+    const openModal = () => setIsOpen(true);
+    const closeModal = () => setIsOpen(false);
 
   return (
     <>
-        <button type="button" className="btn " onClick={openModal}>
+        <button type="button" className="btn" onClick={openModal}>
             Track
         </button>
 

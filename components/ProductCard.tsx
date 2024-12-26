@@ -8,24 +8,22 @@ interface Props {
 
 const ProductCard = ({product}: Props) => {
   return (
-    <Link href={`/product/${product._id}`} className='product-card'>
-        <div className='product-card_img-container'>
+    <Link href={`/product/${product.productId}`} className='sm:w-[292px] sm:max-w-[292px] bg-slate-300 p-5 pt-0 w-full flex-1 flex flex-col gap-4 rounded-xl hover:-translate-y-5 duration-300'>
+        <div className='flex-1 relative flex flex-col gap-5 p-4 rounded-md'>
             <Image
-                src={product.image}
-                alt='product.title'
+                src={product.image || ""}
+                alt={product.title || "Product image"}
                 width={200}
                 height={200}
-                className='product-card_img'
+                className='max-h-[250px] object-contain w-full h-full bg-transparent'
             />
         </div>
 
         <div className='flex flex-col gap-3'>
-            <h3 className='product-title'>{product.title}</h3>
+            <h3 className='text-secondary text-[20px] leading-6 font-semibold truncate'>{product.title}</h3>
         </div> 
         <div className='flex justify-between'>
-            <p className='text-black opacity-100 text-lg capitalize'>{product?.category}</p>
-
-            <p className='text-black text-lg font-semibold'>
+            <p className='text-primary text-xl font-semibold'>
                 <span>{product?.currency}</span>
                 <span>{product?.currentPrice}</span>
             </p>

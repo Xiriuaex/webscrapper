@@ -1,26 +1,10 @@
 'use client'
-
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
-import { Carousel } from 'react-responsive-carousel';
-
+ 
+import Image from "next/image";
 const HeroCarousel = () => {
   return (
-    <div className="hero-carousel">
-      <Carousel
-        showThumbs={false} 
-        showArrows={false}
-        showStatus={false}      
-      >
-        <div> 
-            <p className="legend">Legend 1</p>
-        </div>
-        <div> 
-            <p className="legend">Legend 2</p>
-        </div>
-        <div> 
-            <p className="legend">Legend 3</p>
-        </div>
-    </Carousel>
+    <div className="bg-slate-300 rounded-3xl p-6 h-[77vh] flex flex-col justify-center items-center">
+       <img src="/assets/hero.png" width="700" height="1000" alt="uio" />
     </div>
   )
 }

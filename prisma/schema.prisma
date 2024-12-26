@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+ 
+model Products {
+  productId String @id @default(cuid())
+
+  productUrl   String        @unique
+  title        String
+  currentPrice Float
+  originalPrice Float
+  currency     String
+  image        String
+  LowestPrice  Float
+  highestPrice Float
+  averagePrice Float
+  discountRate Float
+  isOutOfStock Boolean 
+  
+
+  productList ProductList[]
+  priceHistory PriceHistory[]
+   
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+}
+
+model PriceHistory {
+    historyId String @id @default(cuid())
+     price     Float
+
+    productId String @unique
+    product Products @relation(fields: [productId], references: [productId])
+
+    createdAt DateTime @default(now())
+}
+
+model Users {
+  userId String @id @default(cuid())
+  uid String @unique
+  email     String @unique
+  fullname String
+  
+  productListId String @unique
+  userToProductList ProductList @relation(fields: [productListId], references: [listId])
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProductList {
+  listId String @id @default(cuid())
+  userId String @unique 
+  
+  user Users?
+  products Products[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}  

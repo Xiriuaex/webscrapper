@@ -1,35 +1,50 @@
-import Link from 'next/link'
-import Image from 'next/image'
+'use client'
+import Link from "next/link";
+import { FaUser } from "react-icons/fa6";  
 
-const navIcons = [
-    {src: '/assets/icons/search.svg', alt: 'search'},
-    {src: '/assets/icons/heart.svg', alt: 'heart'},
-    {src: '/assets/icons/profile.svg', alt: 'profile'}
-]
+import { 
+  SignInButton, 
+  SignedIn,
+  SignedOut,
+  UserButton,
+  useUser
+} from '@clerk/nextjs'
 
-const Navbar = () => {
+const Navbar = () => {  
+  
   return (
-    <header className='w-full'>
-        <nav className='nav'>
-            <Link href={"/"} className='flex items-center gap-1'>
-                <p className='nav-logo'>Tracker<span className='text-primary'>Do</span></p>
-            </Link>
-
-            <div className='flex items-center gap-5'>
-                {navIcons.map((icons) => (
-                    <Image
-                        key={icons.alt}
-                        src={icons.src}
-                        alt='icons.alt'
-                        width={25}
-                        height={24}
-                        className='object-contain'
-                    />
-                ))}
-            </div>
-        </nav>
+    <header className="w-full">
+      <nav className="flex justify-between items-center px-6 md:px-20 py-4 bg-slate-300">
+        <Link href={"/"} className="flex items-center gap-1">
+          <p className="font-spaceGrotesk text-[40px] text-secondary font-bold">
+            Tracker<span className="text-primary">Do</span>
+          </p>
+        </Link> 
+        <div className="flex items-center gap-5">  
+              <SignedOut>
+                <SignInButton>
+                  <button className="text-xl text-primary bg-white hover:bg-primary hover:text-white border-2 px-6 py-3 border-gray-400 rounded-full  flex flex-row justify-center p-3 gap-2"><FaUser /></button>  
+                </SignInButton>  
+              </SignedOut>
+              <SignedIn>
+                <Link
+                  href={"#myProducts"}
+                  className="text-xl text-primary bg-white hover:bg-primary hover:text-white border-2 px-6 py-3 border-gray-400 rounded-full  flex flex-row justify-center p-3 gap-2"
+                >
+                  My Products
+                </Link>
+                <Link
+                  href={"#popularNow"}
+                  className="text-xl text-primary bg-white hover:bg-primary hover:text-white border-2 px-6 py-3 border-gray-400 rounded-full  flex flex-row justify-center p-3 gap-2"
+                >
+                  Popular
+                </Link> 
+                <UserButton />  
+              </SignedIn> 
+        </div>
+      </nav>
     </header>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

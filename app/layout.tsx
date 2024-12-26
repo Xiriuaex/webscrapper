@@ -8,6 +8,10 @@ const spaceGrotesk = Space_Grotesk({
   weight: ['300', '400', '500', '600', '700']
 })
 
+import {
+  ClerkProvider
+} from '@clerk/nextjs'
+
 import Navbar from '@/components/Navbar';
 
 export const metadata: Metadata = {
@@ -21,13 +25,15 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <main>
-          <Navbar />
-          {children}
-        </main>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>
+          <main>
+            <Navbar />
+            {children}
+          </main>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }
