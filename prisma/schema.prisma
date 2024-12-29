@@ -3,10 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
- 
+
+
 model Products {
   productId String @id @default(cuid())
 
@@ -22,9 +23,8 @@ model Products {
   discountRate Float
   isOutOfStock Boolean 
   
-
-  productList ProductList[]
   priceHistory PriceHistory[]
+  trackList TrackList[]
    
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -33,32 +33,33 @@ model Products {
 
 model PriceHistory {
     historyId String @id @default(cuid())
-     price     Float
+    price     Float
 
     productId String @unique
-    product Products @relation(fields: [productId], references: [productId])
+    product Products @relation(fields: [productId], references: [productId], onDelete: Cascade)
 
     createdAt DateTime @default(now())
 }
 
 model Users {
   userId String @id @default(cuid())
-  uid String @unique
+  clerkId String @unique
   email     String @unique
   fullname String
-  
-  productListId String @unique
-  userToProductList ProductList @relation(fields: [productListId], references: [listId])
- 
+
+  trackList TrackList?
+
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model ProductList {
-  listId String @id @default(cuid())
-  userId String @unique 
+model TrackList {
+  lid String @id @default(cuid())
+
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  userId String @unique
   
-  user Users?
   products Products[]
 
   createdAt DateTime @default(now())

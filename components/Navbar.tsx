@@ -21,7 +21,7 @@ const Navbar = () => {
         <div className="flex items-center gap-5">  
               <SignedOut>
                 <SignInButton>
-                  <button className="hover:text-slate-300 flex flex-row justify-center"><FaUser /></button>  
+                  <button className="hover:text-primary text-xl flex flex-row justify-center"><FaUser /></button>  
                 </SignInButton>  
               </SignedOut>
               <SignedIn>

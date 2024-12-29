@@ -14,35 +14,43 @@ import { Product } from "@/types";
 import ProductCard from "./ProductCard";
  
 export const MyProducts = () => {
-  const [myproducts, setMyProducts] = useState<Product[] | null>(null);
+  const [myproducts, setMyProducts] = useState<Product[]>();
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const myproducts = await getMyProducts();
-        setMyProducts(myproducts as Product[]);
+        setMyProducts(myproducts);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.error("Error fetching my products!", error);
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchProducts();
   }, []);
+  console.log("My Products:", myproducts);
 
   if (isLoading) {
     return <div className="flex flex-col justify-center items-center">
       <div className="mt-14">
         <h3>
-        Loading products...
+        Loading Your Products...
         </h3>
       </div>
     </div>;
   }
 
   if (!myproducts || myproducts.length === 0) {
-    return <div>User Has no previous products!</div>;
+    return <div className="flex flex-col justify-center items-center">
+      <div className="mt-14">
+        <h3>
+          You Have No Previous Products!
+        </h3>
+      </div>
+    </div>;
   }
 
   return (

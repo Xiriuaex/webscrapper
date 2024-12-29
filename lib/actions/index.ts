@@ -13,8 +13,9 @@ import { getAuth } from "@clerk/nextjs/server";
 import { NextApiRequest, NextApiResponse } from "next";
 import Error from "next/error";
 import { Erica_One } from "next/font/google";
+import { Products } from "@prisma/client";
 
-//save user on database:
+//Store User:
 export async function userOntoDatabase(userId: string): Promise<void> {
   try {
     // Debug: Check if userId is valid
@@ -32,8 +33,6 @@ export async function userOntoDatabase(userId: string): Promise<void> {
       console.log("userExists!");
       return;
     }
-    // Debug: Notify function start
-    // console.log("Fetching Clerk user details for:", userId);
 
     // Fetch user details from Clerk
     const userResponse = await fetch(
@@ -47,73 +46,58 @@ export async function userOntoDatabase(userId: string): Promise<void> {
 
     if (!userResponse.ok) {
       const errorText = await userResponse.text();
-      console.error("Error fetching user details from Clerk:", errorText);
+      console.log("Error fetching user details from Clerk:", errorText);
       return;
     }
 
     const user = await userResponse.json();
-    // console.log("Fetched user object from Clerk:", user);
-    // Extract required fields from Clerk response
+
     const email =
       user.email_addresses[0]?.email_address || "default@example.com";
     const fullname =
       user.username || `${user.first_name}\d${user.last_name}` || "Anonymous";
 
-    // Debug: Log fetched user data
-    // console.log("Fetched Clerk user:", { email, fullname });
-
-    // Upsert user details into database
-    const userData = await prisma.users.upsert({
-      where: { uid: userId },
+    await prisma.users.upsert({
+      where: { clerkId: userId },
       update: {
         email,
         fullname,
       },
       create: {
-        uid: userId, 
+        clerkId: userId,
         email,
-        fullname,
-        userToProductList: {
-          create: {
-            userId,
-          },
-        },
+        fullname
       },
     });
 
-    // Debug: Log database operation result
-    // console.log("Upserted user into database:", userData);
+    return;
   } catch (error) {
-    console.error("Error saving user to database:", error);
+    console.log("Error saving user to database!", error);
   }
 }
 
-//update user table and productList table as well
-export async function scrapeAndStoreProduct(
-  productURL: string,
-  req?: NextApiRequest,
-  res?: NextApiResponse
-): Promise<Product | null> {
+//Scrape Product
+export async function scrapeAndStoreProduct(productURL: string) {
   try {
     // Authenticate the user
     const { userId } = await auth();
 
     if (!userId) {
-      res?.status(401).send({ message: "Authentication Failed!" });
-      return null;
+      alert("Authentication Failed!")
+      return;
     }
 
     if (!productURL) {
-      res?.status(400).send({ message: "No URL found!" });
-      return null;
+      alert("No URL found!")
+      return 
     }
 
     // Scrape the product data
     const scrapedProduct = await scrapeAmazonProduct(productURL);
 
     if (!scrapedProduct) {
-      res?.status(404).send({ message: "Failed to scrape product data!" });
-      return null;
+      alert("Failed to scrape product data!");
+      return;
     }
 
     const existingProduct = await prisma.products.findUnique({
@@ -142,7 +126,6 @@ export async function scrapeAndStoreProduct(
         averagePrice: getAveragePrice(updatedPrices),
       };
 
-      // console.log(updatedProductData)
       // Update product and price history
       await prisma.products.update({
         where: { productUrl: scrapedProduct.productUrl },
@@ -168,23 +151,21 @@ export async function scrapeAndStoreProduct(
         },
       });
 
-      res
-        ?.status(200)
-        .send({ existingProduct, message: "Product updated successfully!" });
+      console.log("Product updated successfully!");
       return existingProduct;
     } else {
       // Create a new product entry
       const newProduct = await prisma.products.create({
-        data: { 
+        data: {
           productUrl: scrapedProduct.productUrl,
           currency: scrapedProduct.currency ?? "",
           image: scrapedProduct.image ?? "",
           title: scrapedProduct.title ?? "",
           currentPrice: scrapedProduct.currentPrice ?? 0,
           originalPrice: scrapedProduct.originalPrice ?? 0,
-          LowestPrice: scrapedProduct.currentPrice ?? 0,
-          highestPrice: scrapedProduct.currentPrice ?? 0,
-          averagePrice: scrapedProduct.currentPrice ?? 0,
+          LowestPrice: scrapedProduct.lowestPrice ?? 0,
+          highestPrice: scrapedProduct.highestPrice ?? 0,
+          averagePrice: scrapedProduct.averagePrice ?? 0,
           discountRate: scrapedProduct.discountRate ?? 0,
           isOutOfStock: scrapedProduct.isOutOfStock ?? false,
           priceHistory: {
@@ -192,15 +173,69 @@ export async function scrapeAndStoreProduct(
           },
         },
       });
-      // Add product to user's product list
-      await prisma.productList.upsert({
+      // // Add product to user's track list
+      // await prisma.productList.upsert({
+      //   where: {
+      //     userId: userId,
+      //   },
+      //   update: {
+      //     products: {
+      //       connect: {
+      //         productUrl: scrapedProduct.productUrl,
+      //       },
+      //     },
+      //   },
+      //   create: {
+      //     userId: userId,
+      //     products: {
+      //       connect: {
+      //         productUrl: scrapedProduct.productUrl,
+      //       },
+      //     },
+      //   },
+      // });
+
+      return newProduct;
+    }
+  } catch (error) {
+    console.log("Error in scrapeAndStoreProduct!", error);
+    return;
+  }
+}
+
+export async function trackAndStoreProduct(productId: string) {
+  try {
+      // Authenticate the user
+      const { userId } = await auth();
+
+      if (!userId) {
+        alert("Authentication Failed!")
+        return;
+      }
+      
+      const isAlreadyTracked = await prisma.trackList.findMany({
+        where: {
+          products: {
+            some: {
+              productId
+            }
+          }
+        }
+      });
+
+      if(isAlreadyTracked) {
+        return alert("This Item Is already tracked!");
+      }
+    
+      // // Add product to user's track list
+      await prisma.trackList.upsert({
         where: {
           userId: userId,
         },
         update: {
           products: {
             connect: {
-              productUrl: scrapedProduct.productUrl,
+              productId
             },
           },
         },
@@ -208,25 +243,17 @@ export async function scrapeAndStoreProduct(
           userId: userId,
           products: {
             connect: {
-              productUrl: scrapedProduct.productUrl,
+              productId,
             },
           },
         },
       });
-
-      res
-        ?.status(201)
-        .send({ newProduct, message: "New product created successfully!" });
-      return newProduct;
-    }
   } catch (error) {
-    console.log("Error in scrapeAndStoreProduct:", error);
-    res?.status(500).json({ error: `Internal Server Error:` });
-    return null;
+    console.log("Something Wrong to track product!!");
   }
 }
 
-//check for if user also
+//Get Specific Product:
 export async function getProductById(productId: string) {
   try {
     const product = await prisma.products.findUnique({
@@ -235,61 +262,55 @@ export async function getProductById(productId: string) {
       },
     });
 
-    if (!product) return undefined;
+    if (!product) return;
 
     return product;
   } catch (error) {
     console.log(error);
+    return;
   }
 }
 
-//create myProducts
+//myProducts
 export async function getMyProducts() {
   try {
-    // Authenticate the user
     const { userId } = await auth();
 
     if (!userId) {
       alert("No User login");
-      return null;
+      return [];
     }
 
-    const myproducts = await prisma.products.findMany({
+    const myproducts = await prisma.trackList.findMany({
       where: {
-        productList: {
-          some: {
-            userId: userId,
-          },
-        },
+        userId
       },
     });
 
     return myproducts;
   } catch (error) {
-    alert("Something wrong fetching My products!");
-    console.log("Something Wrong", error);
+    console.error("Error fetching my products!", error);
+    return [];
   }
 }
 
-//get all products that are tracked by users.
-//in the frontend check if the product is tracked by that user or not. if not then show track option
+
 export async function getAllProducts() {
   try {
-    const products = await prisma.products.findMany();
-
+    const products: Products[] = await prisma.products.findMany();
     return products;
   } catch (error) {
-    console.log("Something Wrong!");
+    console.log("Error fetching all products!", error);
+    return [];
   }
 }
+
 
 export async function addUserEmailToProduct(
   productId: string,
   userEmail: string
 ) {
   try {
-    const { userId } = await auth();
-
     const product = await prisma.products.findUnique({
       where: { productId: productId as string },
     });
@@ -301,7 +322,6 @@ export async function addUserEmailToProduct(
 
     const emailContent = await generateEmailBody(product, "WELCOME");
     await sendEmail(emailContent, userEmail);
- 
   } catch (error) {
     console.error("Error adding user email to product:", error);
   }

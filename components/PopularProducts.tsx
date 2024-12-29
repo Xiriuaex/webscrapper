@@ -14,15 +14,16 @@ import { Product } from "@/types";
 import ProductCard from "./ProductCard";
  
 const PopularProducts = () => {
-  const [allProducts, setAllProducts] = useState<Product[] | null>(null);
+  const [allProducts, setAllProducts] = useState<Product[]>();
   const [isLoading, setIsLoading] = useState<boolean>(true); 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const myproducts = await getAllProducts();
+        
         setAllProducts(myproducts as Product[]);
       } catch (error) {
-        console.error("Error fetching products:", error);
+        console.log("Error fetching products!", error);
       } finally {
         setIsLoading(false);
       }
@@ -34,14 +35,20 @@ const PopularProducts = () => {
     return <div className="flex flex-col justify-center items-center">
       <div className="mt-14">
         <h3>
-        Loading products...
+        Loading Popular Products...
         </h3>
       </div>
     </div>;
   }
 
-  if (!allProducts || allProducts.length === 0) {
-    return <div>No Products Available Currently!</div>;
+  if (!allProducts || allProducts?.length === 0) {
+    return <div className="flex flex-col justify-center items-center">
+    <div className="mt-14">
+      <h3>
+      No Products Currently Available!
+      </h3>
+    </div>
+  </div>;
   }
 
   return (
@@ -49,7 +56,7 @@ const PopularProducts = () => {
       <Swiper
         slidesPerView={3}
         centeredSlides={
-          (allProducts.length < 2) ? true : false
+          (allProducts.length < 3) ? false : true
         }
         spaceBetween={0}
         loop={true}
