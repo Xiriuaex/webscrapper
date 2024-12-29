@@ -16,7 +16,7 @@ import Navbar from '@/components/Navbar';
 
 export const metadata: Metadata = {
   title: 'TrackerDo',
-  description: 'Track prices effortlessly.',
+  description: 'Track Amazon product prices effortlessly with TrackerDo',
 }
 
 export default function RootLayout({
