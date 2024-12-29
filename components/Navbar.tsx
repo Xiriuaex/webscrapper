@@ -6,12 +6,10 @@ import {
   SignInButton, 
   SignedIn,
   SignedOut,
-  UserButton,
-  useUser
+  UserButton, 
 } from '@clerk/nextjs'
 
 const Navbar = () => {  
-  
   return (
     <header className="w-full">
       <nav className="flex justify-between items-center px-6 md:px-20 py-4 bg-slate-300">

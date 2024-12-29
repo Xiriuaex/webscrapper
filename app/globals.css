@@ -11,7 +11,7 @@
 
 @layer base {
   body {
-    @apply font-inter;
+    @apply font-inter bg-[#eee];
   }
 }
 
@@ -106,6 +106,19 @@
   .price-info_card {
     @apply flex-1 min-w-[130px] flex flex-col gap-2 border-l-[3px] rounded-10 bg-white-100 px-5 py-4;
   }
-  
 
+
+}
+
+/* Swiper Js */
+.swiper {
+  @apply w-[100%] pt-5 !important
+}
+
+.swiper-slide { 
+  @apply m-auto h-[60vh] flex flex-row justify-center !important
+}
+ 
+.swiper-pagination {
+  @apply relative mt-3 !important
 }

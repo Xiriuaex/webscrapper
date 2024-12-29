@@ -8,44 +8,39 @@ import { MyProducts } from '@/components/MyProducts';
 import { useAuth } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
 import { Product } from '@/types';
+import Footer from '@/components/Footer';
+import PopularProducts from '@/components/PopularProducts';
 
 const Home = () => { 
-  const { isSignedIn, userId } = useAuth();// Call useAuth directly in the component body
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const { isSignedIn, userId } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (isSignedIn && userId) {
           console.log("Calling userOntoDatabase with userId:", userId);
-          await userOntoDatabase(userId); // Call the function
+          await userOntoDatabase(userId);
           console.log("User saved to database.");
         }
-  
-        console.log("Fetching all products...");
-        const products = await getAllProducts();
-        setAllProducts(products as Product[]);
-        console.log("Products fetched:", products);
       } catch (error) {
         console.error("Error fetching data or saving user:", error);
       }
     };
   
-    fetchData(); // Call the async function
-  }, [isSignedIn, userId]); // Include dependencies to rerun when they change
+    fetchData();
+  }, [isSignedIn, userId]);
   
 
-  // Handle the conditional rendering based on userId
   const renderMyProductsSection = () => {
     if (userId) {
       return (
-        <section id='myProducts' className='flex flex-col min-h-[30vh] gap-10 px-8 md:px-32 py-20'>
+        <section id='myProducts' className='flex flex-col min-h-[30vh] gap-10 px-8 md:px-24 pb-20'>
           <h1 className='text-[40px] font-semibold uppercase text-center'>My Products</h1>
           <MyProducts />
         </section>
       );
     }
-    return null;  // Return null to skip rendering if userId is null
+    return null; 
   };
 
   return (
@@ -68,15 +63,13 @@ const Home = () => {
 
       {renderMyProductsSection()}
 
-      <section id='popularNow' className='flex flex-col gap-10 px-6 md:px-20 py-20'>
-        <h1 className='text-[40px] font-semibold uppercase text-center'>Popular Now</h1>
-        <div className='flex flex-wrap justify-center gap-x-8 gap-y-16'>
-          {allProducts.sort((a, b) => 
-            (a.createdAt?.getTime() ?? 0) < (b.createdAt?.getTime() ?? 0) ? 1 : -1
-          ).map((product) => (
-            <ProductCard key={product.productId} product={product} />
-          ))}
-        </div>
+      <section id='popularNow' className='flex flex-col min-h-[30vh] gap-10 px-8 md:px-32 pb-20'>
+        <h1 className='text-[40px] font-semibold uppercase text-center'>Popular Products</h1>
+        <PopularProducts />
+      </section>
+      
+      <section>
+        <Footer />
       </section>
     </>
   );
