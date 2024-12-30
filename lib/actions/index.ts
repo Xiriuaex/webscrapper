@@ -173,46 +173,7 @@ export async function scrapeAndStoreProduct(productURL: string): Promise<Product
     return null;
   }
 }
-
-const trackAndStoreProduct = async (productId: string, userId: string) => {
-  try { 
-    if (!userId) {
-      console.log("Authentication Failed!");
-      return;
-    }
-
-    const isAlreadyTracked = await prisma.trackList.findMany({
-      where: {
-        products: {
-          some: {
-            productId,
-          },
-        },
-      },
-    });
-
-    if (isAlreadyTracked) {
-      console.log("This Item Is already tracked!");
-      return;
-    }
-
-    // // Add product to user's track list
-    await prisma.trackList.create({
-      data: {
-        userId: userId,
-        products: {
-          connect: {
-            productId,
-          },
-        },
-      },
-    });
-  } catch (error) {
-    console.log("Error in trackAndStoreProduct!", error);
-    return;
-  }
-}
-
+ 
 //Get Specific Product:
 export async function getProductById(productId: string) {
   try {
@@ -276,11 +237,46 @@ export async function addUserEmailToProduct(
     });
 
     if (!product) {
-      console.error("Product not found");
+      console.error("Product Not Found!");
       return;
     };
 
-    await trackAndStoreProduct(productId, userId as string);
+    try { 
+      if (!userId) {
+        console.log("Authentication Failed!");
+        return;
+      }
+  
+      const isAlreadyTracked = await prisma.trackList.findMany({
+        where: {
+          products: {
+            some: {
+              productId,
+            },
+          },
+        },
+      });
+  
+      if (isAlreadyTracked) {
+        console.log("This Item Is already tracked!");
+        return;
+      }
+  
+      // // Add product to user's track list
+      await prisma.trackList.create({
+        data: {
+          userId: userId,
+          products: {
+            connect: {
+              productId,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      console.log("Error in trackAndStoreProduct!", error);
+      return;
+    }
 
     const emailContent = await generateEmailBody(product, "WELCOME");
     await sendEmail(emailContent, userEmail);
