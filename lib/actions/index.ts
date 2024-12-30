@@ -7,6 +7,7 @@ import { generateEmailBody, sendEmail } from "../nodemailer";
 import { prisma } from "../db";
 import { auth } from "@clerk/nextjs/server";
 import { Products } from "@prisma/client";
+import { Product } from "@/types";
 
 //Store User:
 export async function userOntoDatabase(userId: string): Promise<void> {
@@ -70,7 +71,7 @@ export async function userOntoDatabase(userId: string): Promise<void> {
 }
 
 //Scrape Product
-export async function scrapeAndStoreProduct(productURL: string) {
+export async function scrapeAndStoreProduct(productURL: string): Promise<Product | null> {
   try {
     // Authenticate the user
     const { userId } = await auth();
