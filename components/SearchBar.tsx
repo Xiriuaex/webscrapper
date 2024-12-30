@@ -46,9 +46,8 @@ const SearchBar = () => {
 
     try {
       setIsLoading(true);
-      const product: Product | null = await scrapeAndStoreProduct(searchPrompt); 
+      const product: Product | void | null = await scrapeAndStoreProduct(searchPrompt); 
 
-      alert(product);
       if (product) {
         router.push(`/product/${product.productId}`);
       } else {

@@ -71,27 +71,25 @@ export async function userOntoDatabase(userId: string): Promise<void> {
 }
 
 //Scrape Product
-export async function scrapeAndStoreProduct(productURL: string): Promise<Product | null> {
+export async function scrapeAndStoreProduct(productURL: string): Promise<Product | void | null> {
   try {
     // Authenticate the user
     const { userId } = await auth();
 
     if (!userId) {
-      alert("Authentication Failed!");
-      return null;
+      return alert("No URL found!");
     }
 
     if (!productURL) {
-      alert("No URL found!");
-      return null;
+      return alert("No URL found!");
     }
 
     // Scrape the product data
     const scrapedProduct = await scrapeAmazonProduct(productURL);
 
+    console.log(scrapedProduct);
     if (!scrapedProduct) {
-      alert("Failed to scrape product data!");
-      return null;
+      return alert("Failed to scrape product data!");
     }
 
     const existingProduct = await prisma.products.findUnique({
