@@ -247,21 +247,6 @@ export async function addUserEmailToProduct(
         return;
       }
   
-      const isAlreadyTracked = await prisma.trackList.findMany({
-        where: {
-          products: {
-            some: {
-              productId,
-            },
-          },
-        },
-      });
-  
-      if (isAlreadyTracked !== null) {
-        console.log("This Item Is already tracked!");
-        return;
-      }
-  
       // // Add product to user's track list
       await prisma.trackList.create({
         data: {
