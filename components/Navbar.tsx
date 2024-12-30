@@ -1,15 +1,10 @@
-'use client'
+"use client";
 import Link from "next/link";
-import { FaUser } from "react-icons/fa6";  
+import { FaUser } from "react-icons/fa6";
 
-import { 
-  SignInButton, 
-  SignedIn,
-  SignedOut,
-  UserButton
-} from '@clerk/nextjs'
+import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
-const Navbar = () => {  
+const Navbar = () => {
   return (
     <header className="w-full">
       <nav className="flex text-[15px] text-secondary justify-between items-center px-6 md:px-20 py-4 bg-slate-300">
@@ -17,16 +12,18 @@ const Navbar = () => {
           <p className="font-spaceGrotesk text-[40px]  font-bold">
             Tracker<span className="text-primary">Do</span>
           </p>
-        </Link> 
-        <div className="flex items-center gap-5">  
-              <SignedOut>
-                <SignInButton>
-                  <button className="hover:text-primary text-xl flex flex-row justify-center"><FaUser /></button>  
-                </SignInButton>  
-              </SignedOut>
-              <SignedIn>
-                <UserButton />  
-              </SignedIn> 
+        </Link>
+        <div className="flex items-center gap-5">
+          <SignedOut>
+            <SignInButton>
+              <button className="hover:text-primary text-xl flex flex-row justify-center">
+                <FaUser />
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </div>
       </nav>
     </header>

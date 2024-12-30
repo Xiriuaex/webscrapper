@@ -1,67 +1,69 @@
 import { PriceHistoryItem, Product } from "@/types";
 
 const Notification = {
-  WELCOME: 'WELCOME',
-  CHANGE_OF_STOCK: 'CHANGE_OF_STOCK',
-  LOWEST_PRICE: 'LOWEST_PRICE',
-  THRESHOLD_MET: 'THRESHOLD_MET',
-}
+  WELCOME: "WELCOME",
+  CHANGE_OF_STOCK: "CHANGE_OF_STOCK",
+  LOWEST_PRICE: "LOWEST_PRICE",
+  THRESHOLD_MET: "THRESHOLD_MET",
+};
 
 const THRESHOLD_PERCENTAGE = 40;
 
 // Extracts and returns the price from a list of possible elements:
 export function extractPrice(...elements: any) {
-    for(const element of elements) {
-        const priceText = element.text().trim();
+  for (const element of elements) {
+    const priceText = element.text().trim();
 
-        if(priceText) {
-            const cleanPrice = priceText.replace(/[^\d.]/g, '');
-            
-            let firstPrice;
+    if (priceText) {
+      const cleanPrice = priceText.replace(/[^\d.]/g, "");
 
-            if(cleanPrice) {
-                firstPrice = cleanPrice.match(/\d+\.\d{2}/)?.[0];
-            }
+      let firstPrice;
 
-            return firstPrice || cleanPrice;
-        }
+      if (cleanPrice) {
+        firstPrice = cleanPrice.match(/\d+\.\d{2}/)?.[0];
+      }
+
+      return firstPrice || cleanPrice;
     }
+  }
 
-    return '';
+  return "";
 }
 
 // Extracts and returns the currency symbol from an element:
 export function extractCurrency(element: any) {
-    const currencyText = element.text().trim().slice(0,1);
+  const currencyText = element.text().trim().slice(0, 1);
 
-    return currencyText ? currencyText : "";
+  return currencyText ? currencyText : "";
 }
 
-export function getHighestPrice(priceList: PriceHistoryItem[], highestCrossed: number) {
-    let highestPrice = highestCrossed;
+export function getHighestPrice(
+  priceList: PriceHistoryItem[],
+  highestCrossed: number
+) {
+  let highestPrice = highestCrossed;
 
-  
-    for (let i = 0; i < priceList.length; i++) {
-      if (priceList[i].price > highestPrice) {
-        highestPrice = priceList[i].price;
-      }
+  for (let i = 0; i < priceList.length; i++) {
+    if (priceList[i].price > highestPrice) {
+      highestPrice = priceList[i].price;
     }
-  
-    return highestPrice;
+  }
+
+  return highestPrice;
 }
-  
+
 export function getLowestPrice(priceList: PriceHistoryItem[]) {
-    let lowestPrice = priceList[0];
-  
-    for (let i = 0; i < priceList.length; i++) {
-      if (priceList[i].price < lowestPrice.price) {
-        lowestPrice = priceList[i];
-      }
+  let lowestPrice = priceList[0];
+
+  for (let i = 0; i < priceList.length; i++) {
+    if (priceList[i].price < lowestPrice.price) {
+      lowestPrice = priceList[i];
     }
-  
-    return lowestPrice.price;
+  }
+
+  return lowestPrice.price;
 }
-  
+
 export function getAveragePrice(priceList: PriceHistoryItem[]) {
   const sumOfPrices = priceList.reduce((acc, curr) => acc + curr.price, 0);
   const averagePrice = sumOfPrices / priceList.length || 0;
@@ -73,7 +75,9 @@ export const getEmailNotifType = (
   scrapedProduct: Product,
   currentProduct: Product
 ) => {
-  const lowestPrice = getLowestPrice(currentProduct.priceHistory as PriceHistoryItem[]);
+  const lowestPrice = getLowestPrice(
+    currentProduct.priceHistory as PriceHistoryItem[]
+  );
 
   if ((scrapedProduct.currentPrice as number) < lowestPrice) {
     return Notification.LOWEST_PRICE as keyof typeof Notification;

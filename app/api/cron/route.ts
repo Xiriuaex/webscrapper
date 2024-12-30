@@ -1,82 +1,135 @@
 import { NextResponse } from "next/server";
 
-import { getLowestPrice, getHighestPrice, getAveragePrice, getEmailNotifType } from "@/lib/utils";
-import { connectToDB } from "@/lib/mongoose";
-import Product from "@/lib/models/product.model";
+import {
+  getLowestPrice,
+  getHighestPrice,
+  getAveragePrice,
+  getEmailNotifType,
+} from "@/lib/utils";
 import { scrapeAmazonProduct } from "@/lib/scrapper";
 import { generateEmailBody, sendEmail } from "@/lib/nodemailer";
 
+import { prisma } from "../../../lib/db";
 export const maxDuration = 10; // This function can run for a maximum of 300 seconds
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export async function GET(request: Request) {
   try {
-    connectToDB();
+    const trackedProducts = await prisma.products.findMany({
+      where: {
+        trackList: {
+          some: {},
+        },
+      },
+    });
 
-    const products = await Product.find({});
+    if (!trackedProducts || trackedProducts.length === 0) {
+      return NextResponse.json({ message: "No tracked products found!" });
+    }
 
-    if (!products) throw new Error("No product fetched");
-
-    // \SCRAPE LATEST PRODUCT DETAILS & UPDATE DB
+    //SCRAPE LATEST PRODUCT DETAILS & UPDATE DB
     const updatedProducts = await Promise.all(
-      products.map(async (currentProduct) => {
-        // Scrape product
-        const scrapedProduct = await scrapeAmazonProduct(currentProduct.url);
+      trackedProducts.map(async (currTrackedProduct) => {
+        try {
+          const scrapedProduct = await scrapeAmazonProduct(
+            currTrackedProduct.productUrl
+          );
 
-        if (!scrapedProduct) return;
+          if (!scrapedProduct) {
+            console.error(
+              `Failed to scrape product: ${currTrackedProduct.productUrl}`
+            );
+            return null;
+          }
 
-        const updatedPriceHistory = [
-          ...currentProduct.priceHistory,
-          {
-            price: scrapedProduct.currentPrice,
-          },
-        ];
+          const updatedPriceHistory = [
+            ...scrapedProduct.priceHistory,
+            { price: scrapedProduct.currentPrice },
+          ];
 
-        const product = {
-          ...scrapedProduct,
-          priceHistory: updatedPriceHistory,
-          lowestPrice: getLowestPrice(updatedPriceHistory),
-          highestPrice: getHighestPrice(updatedPriceHistory, scrapedProduct.highestPrice),
-          averagePrice: getAveragePrice(updatedPriceHistory),
-        };
-
-        // Update Products in DB
-        const updatedProduct = await Product.findOneAndUpdate(
-          {
-            url: product.productUrl,
-          },
-          product
-        );
-
-        // CHECK EACH PRODUCT'S STATUS & SEND EMAIL ACCORDINGLY
-        const emailNotifType = getEmailNotifType(
-          scrapedProduct,
-          currentProduct
-        );
-
-        if (emailNotifType && updatedProduct.users.length > 0) {
-          const productInfo = {
-            title: updatedProduct.title,
-            url: updatedProduct.url,
+          const updatedProductData = {
+            title: scrapedProduct.title,
+            currentPrice: scrapedProduct.currentPrice,
+            priceHistory: updatedPriceHistory,
+            lowestPrice: getLowestPrice(updatedPriceHistory),
+            highestPrice: getHighestPrice(
+              updatedPriceHistory,
+              currTrackedProduct.highestPrice
+            ),
+            averagePrice: getAveragePrice(updatedPriceHistory),
           };
-          // Construct emailContent
-          const emailContent = await generateEmailBody(productInfo, emailNotifType);
-          // Get array of user emails
-          const userEmails = updatedProduct.users.map((user: any) => user.email);
-          // Send email notification
-          await sendEmail(emailContent, userEmails);
-        }
 
-        return updatedProduct;
+          // Update product in the database
+          const updatedProduct = await prisma.products.update({
+            where: { productUrl: currTrackedProduct.productUrl },
+            data: {
+              title: updatedProductData.title,
+              currentPrice: updatedProductData.currentPrice,
+              priceHistory: {
+                create: updatedProductData.priceHistory.map((i) => ({
+                  price: i.price,
+                })),
+              },
+              LowestPrice: updatedProductData.lowestPrice,
+              highestPrice: updatedProductData.highestPrice,
+              averagePrice: updatedProductData.averagePrice,
+            },
+          });
+
+          const userWithTrackList = await prisma.users.findMany({
+            where: {
+              trackList: {
+                isNot: null,
+              },
+            },
+          });
+
+          // Get array of user emails
+          const userEmails = userWithTrackList.map((user) => user.email);
+
+          // Check for email notifications
+          const emailNotifType = getEmailNotifType(
+            scrapedProduct,
+            currTrackedProduct
+          );
+
+          if (emailNotifType) {
+            const productInfo = {
+              title: updatedProduct.title,
+              url: updatedProduct.productUrl,
+            };
+
+            // Construct email content
+            const emailContent = await generateEmailBody(
+              productInfo,
+              emailNotifType
+            );
+
+            // Send email notification
+            await sendEmail(emailContent, userEmails);
+
+            return updatedProduct;
+          }
+        } catch (error) {
+          console.error(
+            `Error processing product ${currTrackedProduct.productUrl}:`,
+            error
+          );
+          return null;
+        }
       })
     );
 
     return NextResponse.json({
-      message: "Ok",
-      data: updatedProducts,
+      message: "Products updated successfully",
+      data: updatedProducts.filter((product) => product !== null),
     });
   } catch (error: any) {
-    throw new Error(`Failed to get all products: ${error.message}`);
+    console.error("Failed to update products:", error);
+    return NextResponse.json(
+      { message: `Failed to update products: ${error.message}` },
+      { status: 500 }
+    );
   }
 }

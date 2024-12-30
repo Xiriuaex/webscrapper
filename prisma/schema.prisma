@@ -7,48 +7,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Products {
   productId String @id @default(cuid())
 
-  productUrl   String        @unique
-  title        String
-  currentPrice Float
+  productUrl    String  @unique
+  title         String
+  currentPrice  Float
   originalPrice Float
-  currency     String
-  image        String
-  LowestPrice  Float
-  highestPrice Float
-  averagePrice Float
-  discountRate Float
-  isOutOfStock Boolean 
-  
+  currency      String
+  image         String
+  LowestPrice   Float
+  highestPrice  Float
+  averagePrice  Float
+  discountRate  Float
+  isOutOfStock  Boolean
+
   priceHistory PriceHistory[]
-  trackList TrackList[]
-   
+  trackList    TrackList[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
 }
 
 model PriceHistory {
-    historyId String @id @default(cuid())
-    price     Float
+  historyId String @id @default(cuid())
+  price     Float
 
-    productId String @unique
-    product Products @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  productId String   @unique
+  product   Products @relation(fields: [productId], references: [productId], onDelete: Cascade)
 
-    createdAt DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 model Users {
-  userId String @id @default(cuid())
-  clerkId String @unique
-  email     String @unique
+  userId   String @id @default(cuid())
+  clerkId  String @unique
+  email    String @unique
   fullname String
 
   trackList TrackList?
-
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -57,11 +54,11 @@ model Users {
 model TrackList {
   lid String @id @default(cuid())
 
-  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  user   Users  @relation(fields: [userId], references: [userId], onDelete: Cascade)
   userId String @unique
-  
+
   products Products[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}  
+}
