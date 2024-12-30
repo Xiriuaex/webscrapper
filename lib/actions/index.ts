@@ -257,7 +257,7 @@ export async function addUserEmailToProduct(
         },
       });
   
-      if (isAlreadyTracked === null) {
+      if (isAlreadyTracked !== null) {
         console.log("This Item Is already tracked!");
         return;
       }
