@@ -77,12 +77,12 @@ export async function scrapeAndStoreProduct(productURL: string) {
 
     if (!userId) {
       alert("Authentication Failed!");
-      return;
+      return null;
     }
 
     if (!productURL) {
       alert("No URL found!");
-      return;
+      return null;
     }
 
     // Scrape the product data
@@ -90,7 +90,7 @@ export async function scrapeAndStoreProduct(productURL: string) {
 
     if (!scrapedProduct) {
       alert("Failed to scrape product data!");
-      return;
+      return null;
     }
 
     const existingProduct = await prisma.products.findUnique({
@@ -171,7 +171,7 @@ export async function scrapeAndStoreProduct(productURL: string) {
     }
   } catch (error) {
     console.log("Error in scrapeAndStoreProduct!", error);
-    return;
+    return null;
   }
 }
 
