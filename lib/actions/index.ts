@@ -174,7 +174,7 @@ export async function scrapeAndStoreProduct(productURL: string): Promise<Product
   }
 }
 
-export async function trackAndStoreProduct(productId: string, userId: string) {
+const trackAndStoreProduct = async (productId: string, userId: string) => {
   try { 
     if (!userId) {
       console.log("Authentication Failed!");
@@ -280,7 +280,7 @@ export async function addUserEmailToProduct(
       return;
     };
 
-    trackAndStoreProduct(productId, userId as string);
+    await trackAndStoreProduct(productId, userId as string);
 
     const emailContent = await generateEmailBody(product, "WELCOME");
     await sendEmail(emailContent, userEmail);
