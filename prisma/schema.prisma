@@ -44,7 +44,7 @@ model Users {
   clerkId  String @unique
   email    String @unique
   fullname String
-
+  
   trackList TrackList?
 
   createdAt DateTime @default(now())
@@ -54,8 +54,8 @@ model Users {
 model TrackList {
   lid String @id @default(cuid())
 
-  user   Users  @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  userId String @unique
+  user   Users  @relation(fields: [email], references: [email], onDelete: Cascade)
+  email String @unique
 
   products Products[]
 

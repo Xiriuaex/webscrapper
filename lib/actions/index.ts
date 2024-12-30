@@ -250,7 +250,7 @@ export async function addUserEmailToProduct(
       // // Add product to user's track list
       await prisma.trackList.create({
         data: {
-          userId: userId,
+          email: userEmail,
           products: {
             connect: {
               productId,
