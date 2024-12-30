@@ -14,7 +14,7 @@ export async function userOntoDatabase(userId: string): Promise<void> {
   try {
     // Debug: Check if userId is valid
     if (!userId) {
-      console.error("Error: No userId provided");
+      console.log("Error: No userId provided");
       return;
     }
     const existingUser = await prisma.users.findUnique({
@@ -28,7 +28,6 @@ export async function userOntoDatabase(userId: string): Promise<void> {
       return;
     }
 
-    // Fetch user details from Clerk
     const userResponse = await fetch(
       `https://api.clerk.dev/v1/users/${userId}`,
       {
@@ -67,29 +66,32 @@ export async function userOntoDatabase(userId: string): Promise<void> {
     return;
   } catch (error) {
     console.log("Error saving user to database!", error);
+    return;
   }
 }
 
 //Scrape Product
-export async function scrapeAndStoreProduct(productURL: string): Promise<Product | void | null> {
+export async function scrapeAndStoreProduct(productURL: string): Promise<Product | null> {
   try {
-    // Authenticate the user
+    
     const { userId } = await auth();
 
     if (!userId) {
-      return alert("No URL found!");
+      console.log("Authentication Failed!");
+      return null;
     }
 
     if (!productURL) {
-      return alert("No URL found!");
+      console.log("No URL found!");
+      return null;
     }
 
     // Scrape the product data
     const scrapedProduct = await scrapeAmazonProduct(productURL);
 
-    console.log(scrapedProduct);
     if (!scrapedProduct) {
-      return alert("Failed to scrape product data!");
+      console.log("Failed to scrape product data!");
+      return null;
     }
 
     const existingProduct = await prisma.products.findUnique({
@@ -129,7 +131,6 @@ export async function scrapeAndStoreProduct(productURL: string): Promise<Product
         },
       });
 
-      console.log("product is updated!");
       await prisma.priceHistory.upsert({
         where: {
           productId: existingProduct.productId,
@@ -143,10 +144,9 @@ export async function scrapeAndStoreProduct(productURL: string): Promise<Product
         },
       });
 
-      console.log("Product updated successfully!");
       return existingProduct;
     } else {
-      // Create a new product entry
+      
       const newProduct = await prisma.products.create({
         data: {
           productUrl: scrapedProduct.productUrl,
@@ -177,7 +177,7 @@ export async function scrapeAndStoreProduct(productURL: string): Promise<Product
 export async function trackAndStoreProduct(productId: string, userId: string) {
   try { 
     if (!userId) {
-      alert("Authentication Failed!");
+      console.log("Authentication Failed!");
       return;
     }
 
@@ -192,7 +192,8 @@ export async function trackAndStoreProduct(productId: string, userId: string) {
     });
 
     if (isAlreadyTracked) {
-      return alert("This Item Is already tracked!");
+      console.log("This Item Is already tracked!");
+      return;
     }
 
     // // Add product to user's track list
@@ -207,7 +208,8 @@ export async function trackAndStoreProduct(productId: string, userId: string) {
       },
     });
   } catch (error) {
-    console.log("Something Wrong to track product!!", error);
+    console.log("Error in trackAndStoreProduct!", error);
+    return;
   }
 }
 
@@ -224,7 +226,7 @@ export async function getProductById(productId: string) {
 
     return product;
   } catch (error) {
-    console.log(error);
+    console.log("Error in GetProductById!", error);
     return;
   }
 }
