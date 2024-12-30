@@ -1,25 +1,20 @@
 import { PrismaClient } from "@prisma/client";
-import path from "path";
 
 declare global {
   var prisma: PrismaClient | undefined;
 }
 
 const isProduction = process.env.NODE_ENV === "production";
-const dbPath = isProduction
-  ? `file:${path.resolve(__dirname, "prisma", "dev.db")}`
-  : process.env.DATABASE_URL || "file:./prisma/dev.db";
 
-console.log("Database Connected!");
+let prisma: PrismaClient;
 
-export const prisma =
-  globalThis.prisma ||
-  new PrismaClient({
-    datasources: {
-      db: {
-        url: dbPath,
-      },
-    },
-  });
+if (isProduction) {
+  prisma = new PrismaClient();
+} else {
+  if (!global.prisma) {
+    global.prisma = new PrismaClient();
+  }
+  prisma = global.prisma;
+}
 
-if (!isProduction) globalThis.prisma = prisma;
+export { prisma };
