@@ -197,6 +197,7 @@ export async function getMyProducts() {
   try {
     const { userId } = await auth();
 
+
     if (!userId) {
       alert("No User login");
       return [];
@@ -204,7 +205,9 @@ export async function getMyProducts() {
 
     const myproducts = await prisma.trackList.findMany({
       where: {
-        userId,
+        user : {
+          userId
+        },
       },
     });
 
